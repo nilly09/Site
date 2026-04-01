@@ -1,0 +1,124 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0f172a; /* azul escuro */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Formulário */
+form {
+    background-color: #ffffff;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Título dentro do formulário */
+form h1 {
+    font-size: 24px;
+    color: #1e293b;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+/* Inputs e textarea */
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+input:focus, textarea:focus {
+    border-color: #304c99;
+    box-shadow: 0 0 6px rgba(29, 78, 216, 0.4);
+}
+
+/* Botão */
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #304c99;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #1e40af;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* Mensagem de resultado */
+#mensagem-resultado {
+    display: none; /* começa escondido */
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+#mensagem-resultado.sucesso {
+    background-color: #16a34a; /* verde */
+    color: #fff;
+}
+
+#mensagem-resultado.erro {
+    background-color: #dc2626; /* vermelho */
+    color: #fff;
+}
+
+/* Responsividade */
+@media (max-width: 420px) {
+    form {
+        padding: 30px 20px;
+    }
+
+    form h1 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    input, textarea {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 14px;
+    }
+}

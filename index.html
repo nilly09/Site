@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Formulário de Contato</title>
+<link rel="stylesheet" href="style.css">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("formContato");
+    const resultadoDiv = document.getElementById("mensagem-resultado");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault(); // impede envio tradicional
+
+        const formData = new FormData(form);
+
+        fetch("processar.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.text())
+        .then(res => {
+            resultadoDiv.style.display = "block";
+
+            // Se o PHP retornar sucesso, mostrar os dados enviados (exceto senha)
+            if (res.startsWith("Nome:")) {
+                resultadoDiv.textContent = res;
+                resultadoDiv.classList.remove("erro");
+                resultadoDiv.classList.add("sucesso");
+                form.reset();
+            } else {
+                // caso seja erro
+                resultadoDiv.textContent = res;
+                resultadoDiv.classList.remove("sucesso");
+                resultadoDiv.classList.add("erro");
+            }
+        })
+        .catch(() => {
+            resultadoDiv.style.display = "block";
+            resultadoDiv.textContent = "Erro ao enviar a mensagem.";
+            resultadoDiv.classList.remove("sucesso");
+            resultadoDiv.classList.add("erro");
+        });
+    });
+});
+</script>
+</head>
+<body>
+
+<form id="formContato">
+
+    <!-- Título dentro do formulário -->
+    <h1>Formulário de Contato</h1>
+
+    <label>Nome:</label>
+    <input type="text" name="nome" required>
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <label>Senha:</label>
+    <input type="password" name="senha" required>
+
+    <label>Mensagem:</label>
+    <textarea name="mensagem" maxlength="250" required></textarea>
+
+    <button type="submit">Enviar</button>
+
+    <!-- Mensagem de resultado -->
+    <div id="mensagem-resultado"></div>
+
+</form>
+  
+</body>
+</html>

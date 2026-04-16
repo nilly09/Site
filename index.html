@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <title>Formulário de Contato</title>
 <link rel="stylesheet" href="style.css">
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
     const form = document.getElementById("formContato");
-    const resultadoDiv = document.getElementById("mensagem-resultado");
 
     form.addEventListener("submit", function (e) {
-        e.preventDefault(); // impede envio tradicional
+        e.preventDefault();
 
         const formData = new FormData(form);
 
@@ -18,38 +19,96 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             body: formData
         })
-        .then(response => response.text())
+        .then(res => res.json())
         .then(res => {
-            resultadoDiv.style.display = "block";
 
-            // Se o PHP retornar sucesso, mostrar os dados enviados (exceto senha)
-            if (res.startsWith("Nome:")) {
-                resultadoDiv.textContent = res;
-                resultadoDiv.classList.remove("erro");
-                resultadoDiv.classList.add("sucesso");
+            alert(res.mensagem);
+
+            if (res.status === "sucesso") {
                 form.reset();
-            } else {
-                // caso seja erro
-                resultadoDiv.textContent = res;
-                resultadoDiv.classList.remove("sucesso");
-                resultadoDiv.classList.add("erro");
+                listar();
             }
         })
         .catch(() => {
-            resultadoDiv.style.display = "block";
-            resultadoDiv.textContent = "Erro ao enviar a mensagem.";
-            resultadoDiv.classList.remove("sucesso");
-            resultadoDiv.classList.add("erro");
+            alert("Erro ao enviar.");
         });
     });
+
+    // carregar lista ao abrir página
+    listar();
 });
+
+function listar() {
+    fetch("listar.php")
+    .then(res => res.json())
+    .then(dados => {
+
+        let box = document.getElementById("lista");
+        box.innerHTML = "";
+
+        dados.forEach(item => {
+            box.innerHTML += `
+                <div class="card">
+                    <b>Nome:</b> ${item.nome}<br>
+                    <b>Email:</b> ${item.email}<br>
+                    <b>Mensagem:</b> ${item.mensagem}<br><br>
+
+                    <button onclick="editar(${item.id})">Editar</button>
+                    <button onclick="deletar(${item.id})">Excluir</button>
+
+                    <hr>
+                </div>
+            `;
+        });
+    });
+}
+
+function deletar(id) {
+
+    if (!confirm("Deseja excluir?")) return;
+
+    fetch("deletar.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id
+    })
+    .then(res => res.json())
+    .then(res => {
+        alert(res.mensagem);
+        listar();
+    });
+}
+
+function editar(id) {
+
+    const nome = prompt("Novo nome:");
+    const email = prompt("Novo email:");
+    const mensagem = prompt("Nova mensagem:");
+
+    fetch("editar.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `id=${id}&nome=${nome}&email=${email}&mensagem=${mensagem}`
+    })
+    .then(res => res.json())
+    .then(res => {
+        alert(res.mensagem);
+        listar();
+    });
+}
 </script>
+
 </head>
+
 <body>
 
+<!-- 🔹 FORMULÁRIO -->
 <form id="formContato">
 
-    <!-- Título dentro do formulário -->
     <h1>Formulário de Contato</h1>
 
     <label>Nome:</label>
@@ -66,10 +125,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     <button type="submit">Enviar</button>
 
-    <!-- Mensagem de resultado -->
-    <div id="mensagem-resultado"></div>
-
 </form>
-  
+<br><br>
+
+<button onclick="window.location.href='update.html'">
+    Ir para Atualizar (UPDATE)
+</button>
+
+<button onclick="window.location.href='delete.html'">
+    Ir para Excluir (DELETE)
+</button>
+
+<!-- 🔹 LISTA (READ) -->
+<h2>Contatos cadastrados</h2>
+
+<div id="lista"></div>
+
 </body>
 </html>

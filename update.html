@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Atualizar Contato</title>
+
+<script>
+function atualizar() {
+
+    const id = document.getElementById("id").value;
+    const nome = document.getElementById("nome").value;
+    const email = document.getElementById("email").value;
+    const mensagem = document.getElementById("mensagem").value;
+
+    fetch("editar.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `id=${id}&nome=${nome}&email=${email}&mensagem=${mensagem}`
+    })
+    .then(res => res.json())
+    .then(res => {
+        alert(res.mensagem);
+    })
+    .catch(() => {
+        alert("Erro ao atualizar");
+    });
+}
+</script>
+
+</head>
+
+<body>
+
+<h1>Atualizar Contato</h1>
+
+<label>ID do contato:</label><br>
+<input type="number" id="id"><br><br>
+
+<label>Novo nome:</label><br>
+<input type="text" id="nome"><br><br>
+
+<label>Novo email:</label><br>
+<input type="email" id="email"><br><br>
+
+<label>Nova mensagem:</label><br>
+<textarea id="mensagem"></textarea><br><br>
+
+<button onclick="atualizar()">Atualizar</button>
+
+</body>
+</html>

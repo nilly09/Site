@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("formContato");
 
     form.addEventListener("submit", function (e) {
-        e.preventDefault(); // 🔥 impede ir pro PHP
+        e.preventDefault();
 
         const formData = new FormData(form);
 
@@ -11,20 +11,15 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             body: formData
         })
-        .then(response => response.text())
+        .then(res => res.json())
         .then(res => {
-
-            if (res === "sucesso") {
-                alert("Mensagem enviada com sucesso!");
+            alert(res.mensagem);
+            if (res.status === "sucesso") {
                 form.reset();
-            } else {
-                alert(res);
+                listar();
             }
-
-        })
-        .catch(() => {
-            alert("Erro ao enviar.");
         });
     });
 
+    listar();
 });

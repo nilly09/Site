@@ -1,18 +1,19 @@
-# 📬 Formulário de Contato
+# 📬 Sistema de Formulário de Contato
 
-Sistema web de formulário de contato com validações no frontend e backend, criptografia de senha e armazenamento seguro em banco de dados MySQL.
+Sistema web completo com CRUD de contatos, validações no frontend e backend, criptografia de senha e armazenamento seguro em banco de dados MySQL.
 
 ---
 
 ## 📋 Sobre o Projeto
 
-Aplicação full-stack que permite o envio de mensagens de contato com:
+Aplicação full-stack que permite o envio, listagem, edição e exclusão de mensagens de contato, com:
 
 - ✅ Validação de e-mail (formato válido via PHP)
 - ✅ Validação e criptografia de senha com `password_hash()` (bcrypt)
 - ✅ Proteção contra SQL Injection (Prepared Statements com PDO)
 - ✅ Envio assíncrono via Fetch API (sem recarregar a página)
 - ✅ Feedback visual de sucesso/erro para o usuário
+- ✅ CRUD completo: criar, listar, editar e excluir contatos
 - ✅ Design responsivo (mobile-first)
 
 ---
@@ -21,7 +22,7 @@ Aplicação full-stack que permite o envio de mensagens de contato com:
 
 | Tecnologia | Finalidade |
 |---|---|
-| HTML5 | Estrutura do formulário |
+| HTML5 | Estrutura do formulário e páginas de gerenciamento |
 | CSS3 | Estilização com Flexbox e responsividade |
 | JavaScript (ES6+) | Envio assíncrono (Fetch API) e feedback visual |
 | PHP 7.4+ | Processamento backend, validações e criptografia |
@@ -35,12 +36,18 @@ Aplicação full-stack que permite o envio de mensagens de contato com:
 ```
 formulario-contato/
 │
-├── index.html          # Página principal com o formulário
-├── processar.php       # Processamento e validações backend
+├── index.html          # Página principal com o formulário de contato
+├── create.php          # Insere novo contato no banco de dados
+├── processar.php       # Processamento e validações backend (email, senha, mensagem)
+├── listar.php          # Retorna todos os contatos em JSON
+├── editar.php          # Atualiza um contato existente (UPDATE)
+├── delete.php          # Exclui um contato pelo ID (DELETE)
+├── update.html         # Página para editar um contato
+├── delete.html         # Página para excluir um contato pelo ID
 ├── conexao.php         # Conexão PDO com o banco de dados
 ├── validar_senha.php   # Função de validação de senha
 ├── style.css           # Estilos e design responsivo
-├── script.js           # Script JS (versão alternativa com alert)
+├── script.js           # Script JS alternativo (versão com alert)
 └── sistema.sql         # Script de criação do banco de dados
 ```
 
@@ -104,7 +111,7 @@ $user = "root";      // Altere para seu usuário MySQL
 $pass = "";          // Altere para sua senha MySQL
 ```
 
-> ⚠️ **Atenção:** Nunca suba o arquivo `conexao.php` com senhas reais para repositórios públicos.
+> ⚠️ **Atenção:** Nunca suba o arquivo `conexao.php` com senhas reais para repositórios públicos. Adicione-o ao `.gitignore` ou utilize variáveis de ambiente.
 
 ### 4. Acessar o sistema
 
@@ -118,7 +125,7 @@ http://localhost/formulario-contato/
 
 ## 📄 Como o Sistema Funciona
 
-### Fluxo completo de uma submissão
+### Fluxo de submissão do formulário
 
 ```
 Usuário preenche o formulário
@@ -137,12 +144,95 @@ processar.php valida: email, senha e tamanho da mensagem
                   retorna nome, email e mensagem → JS exibe em verde
 ```
 
+### CRUD de Contatos
+
+| Operação | Arquivo | Método |
+|---|---|---|
+| Criar | `create.php` | POST |
+| Listar | `listar.php` | GET |
+| Editar | `editar.php` + `update.html` | POST |
+| Excluir | `delete.php` + `delete.html` | POST |
+
 ### Descrição de cada arquivo
 
 **`index.html`**
-Contém o formulário com campos de nome, email, senha e mensagem. O JavaScript embutido intercepta o submit, envia os dados via `fetch()` para o backend e exibe o retorno na div `#mensagem-resultado` com classe `sucesso` (verde) ou `erro` (vermelho).
+Página principal com o formulário de contato (nome, email, senha e mensagem). O JavaScript embutido intercepta o submit, envia os dados via `fetch()` para o backend e exibe o retorno na div `#mensagem-resultado` com classe `sucesso` (verde) ou `erro` (vermelho).
 
 **`processar.php`**
+Backend principal. Recebe os dados via `$_POST`, executa as validações (email, tamanho da mensagem, senha), criptografa a senha com `password_hash()` e insere o registro na tabela `contato` usando PDO com prepared statements.
+
+**`create.php`**
+Recebe os dados de contato via POST e insere um novo registro na tabela `contato`. Retorna JSON com o status da operação.
+
+**`listar.php`**
+Consulta todos os contatos no banco (id, nome, email, mensagem) e retorna o resultado como JSON, ordenado do mais recente para o mais antigo.
+
+**`editar.php`**
+Recebe via POST o `id` e os novos valores (nome, email, mensagem) e executa um `UPDATE` na tabela `contato`. Retorna JSON com status da operação.
+
+**`update.html`**
+Página com formulário para atualizar um contato existente pelo ID. Envia os dados via Fetch API para `editar.php`.
+
+**`delete.php`**
+Recebe o `id` via POST e executa o `DELETE` correspondente na tabela. Retorna JSON com status da operação.
+
+**`delete.html`**
+Página para excluir um contato pelo ID. Solicita confirmação antes de enviar a requisição para `delete.php`.
+
+**`conexao.php`**
+Cria a conexão com o MySQL via PDO. Em caso de falha, exibe a mensagem de erro e encerra a execução.
+
+**`validar_senha.php`**
+Contém a função `validarSenha($senha)` que verifica se a senha tem no mínimo 4 caracteres e se contém apenas caracteres permitidos (letras, números e símbolos comuns).
+
+**`style.css`**
+Estiliza o formulário com fundo azul escuro (`#0f172a`), card branco centralizado, inputs com borda animada ao focar e botão azul. Inclui media query para telas menores que 420px.
+
+**`sistema.sql`**
+Script SQL para criação do banco `sistema` e da tabela `contato` com os campos: `id`, `nome`, `email`, `senha` e `mensagem`.
+
+---
+
+## ✅ Validações Implementadas
+
+### Backend (PHP)
+
+| Campo | Regra | Mensagem de Erro |
+|---|---|---|
+| Email | Formato válido | "Erro: digite um email válido!" |
+| Mensagem | Máximo 250 caracteres | "Erro: a mensagem deve ter no máximo 250 caracteres!" |
+| Senha | Mínimo 4 caracteres | "A senha deve ter no mínimo 4 caracteres." |
+| Senha | Apenas caracteres permitidos | "A senha contém caracteres inválidos." |
+
+### Segurança
+
+- **SQL Injection:** prevenido com PDO e `bindParam()`
+- **Senha:** nunca armazenada em texto puro — sempre criptografada com `password_hash()`
+- **Validação de email:** feita com `filter_var()` do PHP
+
+---
+
+## ⚠️ Observações e Melhorias Sugeridas
+
+- O campo `email` na tabela não possui `UNIQUE`, o que permite e-mails duplicados. Considere adicionar: `ALTER TABLE contato ADD UNIQUE (email);`
+- A senha mínima é de apenas 4 caracteres. Recomenda-se aumentar para 8.
+- O arquivo `script.js` é uma versão alternativa com `alert()` e não está sendo carregado pelo `index.html` (que usa JS embutido). Você pode remover `script.js` ou padronizar em um único arquivo externo.
+- As páginas `delete.html` e `update.html` não possuem estilização própria. Considere aplicar o `style.css` para manter a consistência visual.
+- Em produção, configure o PHP para não exibir erros ao usuário (`display_errors = Off`) e utilize HTTPS.
+- Adicione `conexao.php` ao `.gitignore` para evitar o vazamento de credenciais do banco de dados.
+
+---
+
+## 👥 Autores
+
+- **Nicolly**
+- **Patrick**
+
+---
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para fins educacionais.**`processar.php`**
 Backend principal. Recebe os dados via `$_POST`, executa as validações (email, tamanho da mensagem, senha), criptografa a senha com `password_hash()` e insere o registro na tabela `contato` usando PDO com prepared statements.
 
 **`conexao.php`**

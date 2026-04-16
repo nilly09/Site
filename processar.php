@@ -1,51 +1,46 @@
 <?php
 
-require "conexao.php";
 require "validar_senha.php";
 
-$nome = $_POST['nome'] ?? '';
-$email = $_POST['email'] ?? '';
+$nome = trim($_POST['nome'] ?? '');
+$email = trim($_POST['email'] ?? '');
 $senha = $_POST['senha'] ?? '';
-$mensagem = $_POST['mensagem'] ?? '';
+$mensagem = trim($_POST['mensagem'] ?? '');
 
-/* Validação Email */
+/* Validação email */
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo "Erro: digite um email válido!";
+    echo json_encode(["status" => "erro", "mensagem" => "Email inválido"]);
     exit;
 }
 
-/* Validação mensagem */
+/* Mensagem */
 if (strlen($mensagem) > 250) {
-    echo "Erro: a mensagem deve ter no máximo 250 caracteres!";
+    echo json_encode(["status" => "erro", "mensagem" => "Mensagem muito longa"]);
     exit;
 }
 
-/* Validação senha */
+/* Senha */
 $senhaValida = validarSenha($senha);
 if ($senhaValida !== true) {
-    echo "Erro: " . $senhaValida;
+    echo json_encode(["status" => "erro", "mensagem" => $senhaValida]);
     exit;
 }
 
-/* Criptografar senha */
-$senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+/* Agora repassa para o create.php */
+$postData = http_build_query([
+    'nome' => $nome,
+    'email' => $email,
+    'senha' => $senha,
+    'mensagem' => $mensagem
+]);
 
-/* Inserção no banco */
-$sql = "INSERT INTO contato (nome, email, senha, mensagem)
-        VALUES (:nome, :email, :senha, :mensagem)";
+$ch = curl_init("create.php");
 
-$stmt = $conexao->prepare($sql);
-$stmt->bindParam(":nome", $nome);
-$stmt->bindParam(":email", $email);
-$stmt->bindParam(":senha", $senhaHash);
-$stmt->bindParam(":mensagem", $mensagem);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 
-/* Executa e retorna os dados enviados */
-if ($stmt->execute()) {
-    // Aqui retornamos os dados do usuário, sem a senha
-    echo "Nome: $nome, Gmail: $email, Mensagem enviada: $mensagem";
-} else {
-    echo "Erro ao salvar a mensagem!";
-}
+$response = curl_exec($ch);
+curl_close($ch);
 
-exit;
+echo $response;
